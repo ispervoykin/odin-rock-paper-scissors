@@ -15,7 +15,7 @@ let capitalize = (word) => {
 }
 
 let getPlayerChoice = () => {
-    let playerSelection = prompt('Please choose the shape. The options are: rock, paper, and scissors. If you wish to quit the game, type "quit".');
+    let playerSelection = prompt("Please choose a shape. The valid options are rock, paper, and scissors. If you wish to quit the game, type 'quit'.");
 
     if (playerSelection.toUpperCase() == 'QUIT') {
         return 'quit';
@@ -92,5 +92,5 @@ function start() {
     return console.log("Type start() if you want to play again!");
 }
 
-console.log("Hello and welcome to my Rock-Paper-Scissors console game of Rock-Paper-Scissors! You are playing against your super smart computer. The rules are simple: the first one to get five points wins!");
+console.log("Hello and welcome to my console based game of Rock Paper Scissors! You are playing against your super smart computer. The rules are simple: the first one to get five points wins!");
 console.log("Type start() to start the game!");
