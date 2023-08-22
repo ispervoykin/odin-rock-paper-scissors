@@ -14,83 +14,96 @@ let capitalize = (word) => {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-let getPlayerChoice = () => {
-    let playerSelection = prompt("Please choose a shape. The valid options are rock, paper, and scissors. If you wish to quit the game, type 'quit'.");
-
-    if (playerSelection.toUpperCase() == 'QUIT') {
-        return 'quit';
-    }
-
-    if (!validatePlayerChoice(playerSelection)) {
-        alert("You chose a wrong shape. Please try again.");
-        return;
-    }
-
-    return capitalize(playerSelection);
-}
-
-let getComputerChoice = () => {
+let getComputerSelection = () => {
     let computerSelection = shapesArr[getRandomInt(2)];
     return capitalize(computerSelection);
 }
 
-function validatePlayerChoice(selection) {
-    let shape = selection.toUpperCase();
-    if (!(shape in shapes)) {
-        return false;
-    }
-    return true;
-}
-
-function playRound(playerSelection, computerSelection) {
+function playRound(playerSelection) {
+    let computerSelection = getComputerSelection();
     if (playerSelection == computerSelection) {
-        return 1;
+        return [1, playerSelection, computerSelection];
     } else if (
         (playerSelection == shapes.ROCK && computerSelection == shapes.SCISSORS) ||
         (playerSelection == shapes.SCISSORS && computerSelection == shapes.PAPER) ||
         (playerSelection == shapes.PAPER && computerSelection == shapes.ROCK)
     ) {
-        return 2;
+        return [2, playerSelection, computerSelection];
     } else {
-        return 0;
+        return [0, playerSelection, computerSelection];
     }
 }
 
-function start() {
-    let playerPoints = 0;
-    let computerPoints = 0;
-    while (playerPoints < 5 && computerPoints < 5) {
-        console.log(`The current score is ${playerPoints} - ${computerPoints}!`);
-        let playerSelection = getPlayerChoice();
-        if (playerSelection == 'quit') {
-            console.log("Aborting the game...");
-            return console.log("Type start() if you want to play again!");
-        }
-        if (playerSelection === undefined) continue;
+function proccessRoundResult(result) {
+    let resultCode = result[0];
+    let playerSelection = result[1];
+    let computerSelection = result[2];
 
-        let computerSelection = getComputerChoice();
-        
-        result = playRound(playerSelection, computerSelection);
-        if (result == 0) {
-            console.log(`You lose! ${computerSelection} beats ${playerSelection}!`);
-            computerPoints++;
-        }
-        else if (result == 1) {
-            console.log(`It's a tie between ${playerSelection} and ${computerSelection}!`);
-        }
-        else if (result == 2) {
-            console.log(`You win! ${playerSelection} beats ${computerSelection}!`);
-            playerPoints++;
-        }
+    if (playerPoints == 0 && computerPoints == 0 && roundResultBoard.nextElementSibling.classList.contains('game-over')) {
+        document.querySelectorAll('.game-over').forEach(e => {
+            content.removeChild(e);
+        });
     }
-    if (playerPoints == 5) {
-        console.log(`You win! The final score is ${playerPoints} - ${computerPoints}. Good job!`);
+
+    if (resultCode == 1) {
+        roundResultBoard.textContent = `${playerSelection} vs ${computerSelection}! It's a draw!`;
+    } else if (resultCode == 0) {
+        roundResultBoard.textContent = `${playerSelection} vs ${computerSelection}! Computer wins!`;
+        computerPoints++;
     } else {
-        console.log(`You lose. The final score is ${playerPoints} - ${computerPoints}. Better luck next time!`);
+        roundResultBoard.textContent = `${playerSelection} vs ${computerSelection}! Player wins!`;
+        playerPoints++;
     }
 
-    return console.log("Type start() if you want to play again!");
+    scoreBoard.textContent = `The current score is ${playerPoints} - ${computerPoints}`;
+
+    if (playerPoints == 5 || computerPoints == 5) {
+        const resultBoard = document.createElement('div');
+        resultBoard.classList.add('game-over'); 
+        let winner = (playerPoints == 5) ? 'Player' : 'Computer';
+        resultBoard.textContent = (winner == 'Player') ? 'Victory! ' : 'Defeat! ';
+        resultBoard.textContent += `The winner is ${winner}!`;
+        resultBoard.style.margin = '-30px 0 40px 0';
+        resultBoard.style.fontSize = '40px';
+        resultBoard.style.color = (winner == 'Player') ? 'chartreuse' : 'crimson'; 
+        content.insertBefore(resultBoard, document.querySelector('.buttons'));
+
+        const playAgain = document.createElement('div');
+        playAgain.classList.add('game-over'); 
+        playAgain.style.margin = '-30px 0 40px 0';
+        playAgain.style.fontSize = '40px';
+        playAgain.textContent = 'Choose a shape to play again!';
+        content.insertBefore(playAgain, document.querySelector('.buttons'));
+        playerPoints = 0;
+        computerPoints = 0;
+    }
 }
 
-console.log("Hello and welcome to my console based game of Rock Paper Scissors! You are playing against your super smart computer. The rules are simple: the first one to get five points wins!");
-console.log("Type start() to start the game!");
+let playerPoints = 0;
+let computerPoints = 0;
+
+const content = document.querySelector('.content');
+
+const scoreBoard = document.querySelector('.score');
+const roundResultBoard = document.querySelector('.round-result')
+
+const buttons = document.querySelectorAll('button');
+
+const rockButton = buttons[0];
+const paperButton = buttons[1];
+const scissorsButton = buttons[2];
+
+rockButton.addEventListener('click', () => {
+    let result = playRound('Rock');
+    proccessRoundResult(result);
+});
+
+paperButton.addEventListener('click', () => {
+    let result = playRound('Paper');
+    proccessRoundResult(result);
+});
+
+scissorsButton.addEventListener('click', () => {
+    let result = playRound('Scissors');
+    proccessRoundResult(result);
+});
